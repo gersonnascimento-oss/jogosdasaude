@@ -1,0 +1,2135 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Saúde GameLab Pro</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfeff',
+              100: '#cffafe',
+              400: '#22d3ee',
+              500: '#06b6d4',
+              600: '#0891b2',
+              900: '#164e63',
+            },
+            health: {
+              emerald: '#10b981',
+              rose: '#f43f5e',
+              amber: '#f59e0b',
+              violet: '#8b5cf6',
+              cyan: '#06b6d4'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar & Glassmorphism Utilities */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card-hover:hover {
+      transform: translateY(-4px);
+      border-color: rgba(6, 182, 212, 0.4);
+      box-shadow: 0 12px 30px -10px rgba(6, 182, 212, 0.2);
+    }
+
+    .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.35); }
+    .glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.35); }
+    .glow-rose { box-shadow: 0 0 20px rgba(244, 63, 94, 0.35); }
+
+    canvas { touch-action: none; }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-slate-950 overflow-x-hidden">
+
+  <!-- ==================== HEADER & TOP NAV ==================== -->
+  <header class="sticky top-0 z-50 glass-card border-b border-slate-800/80 px-4 lg:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-emerald-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+          <i class="fa-solid fa-heart-pulse text-white text-xl animate-pulse"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-cyan-400 bg-clip-text text-transparent">
+              Portal Saúde <span class="text-cyan-400 font-mono">GameLab</span>
+            </span>
+            <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/50">
+              PRO v2.5
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">Plataforma Interativa Gamificada de Educação e Reabilitação em Saúde</p>
+        </div>
+      </div>
+
+      <!-- Center Navigation Tabs -->
+      <nav class="hidden md:flex items-center space-x-1 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn active-tab px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all">
+          <i class="fa-solid fa-chart-pie"></i><span>Dashboard</span>
+        </button>
+        <button onclick="switchTab('bioguard')" id="nav-bioguard" class="nav-btn px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all hover:text-cyan-400">
+          <i class="fa-solid fa-shield-virus text-emerald-400"></i><span>BioGuard</span>
+        </button>
+        <button onclick="switchTab('vitalis')" id="nav-vitalis" class="nav-btn px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all hover:text-cyan-400">
+          <i class="fa-solid fa-stethoscope text-rose-400"></i><span>Vitalis ER</span>
+        </button>
+        <button onclick="switchTab('rehab')" id="nav-rehab" class="nav-btn px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all hover:text-cyan-400">
+          <i class="fa-solid fa-hand-holding-medical text-cyan-400"></i><span>RehabQuest</span>
+        </button>
+        <button onclick="switchTab('menteviva')" id="nav-menteviva" class="nav-btn px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all hover:text-cyan-400">
+          <i class="fa-solid fa-spa text-violet-400"></i><span>MenteViva</span>
+        </button>
+      </nav>
+
+      <!-- Right System Actions -->
+      <div class="flex items-center space-x-3">
+        <!-- Global Score Badge -->
+        <div class="hidden sm:flex items-center space-x-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+          <i class="fa-solid fa-trophy text-amber-400 text-xs"></i>
+          <span class="text-xs font-mono font-bold text-slate-200" id="global-score-display">0 pts</span>
+        </div>
+
+        <!-- Audio Mute/Unmute -->
+        <button id="sound-toggle-btn" onclick="toggleSound()" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500/50 flex items-center justify-center text-slate-300 hover:text-cyan-400 transition-all">
+          <i class="fa-solid fa-volume-high text-sm" id="sound-icon"></i>
+        </button>
+
+        <!-- Fullscreen -->
+        <button onclick="toggleFullscreen()" class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500/50 flex items-center justify-center text-slate-300 hover:text-cyan-400 transition-all">
+          <i class="fa-solid fa-expand text-sm"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Nav Bar Below Header -->
+    <div class="flex md:hidden items-center justify-around mt-3 pt-2 border-t border-slate-800/60 overflow-x-auto text-xs">
+      <button onclick="switchTab('dashboard')" class="mobile-nav-btn p-2 text-cyan-400 font-medium">Dashboard</button>
+      <button onclick="switchTab('bioguard')" class="mobile-nav-btn p-2 text-slate-400">BioGuard</button>
+      <button onclick="switchTab('vitalis')" class="mobile-nav-btn p-2 text-slate-400">Vitalis ER</button>
+      <button onclick="switchTab('rehab')" class="mobile-nav-btn p-2 text-slate-400">RehabQuest</button>
+      <button onclick="switchTab('menteviva')" class="mobile-nav-btn p-2 text-slate-400">MenteViva</button>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT AREA ==================== -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- TAB 1: DASHBOARD CENTRAL                                     -->
+    <!-- ------------------------------------------------------------- -->
+    <section id="tab-dashboard" class="tab-content space-y-8">
+      
+      <!-- Hero Welcome Banner -->
+      <div class="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-r from-slate-900 via-slate-900/90 to-cyan-950/40 border border-slate-800">
+        <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute right-1/3 -top-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-2xl space-y-4">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold">
+            <i class="fa-solid fa-sparkles"></i>
+            <span>Plataforma Gamificada Multidisciplinar</span>
+          </div>
+          <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+            Treinamento Clínico & Reabilitação Interativa
+          </h1>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Explore 4 simulações desenvolvidas para fortalecer competências em imunologia, triagem médica de urgência, reabilitação neuromotora e psicorregulação mental.
+          </p>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <button onclick="switchTab('bioguard')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:opacity-90 shadow-lg shadow-cyan-500/20 transition-all">
+              Começar Treino <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+            <button onclick="showGlobalStatsModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-all">
+              Ver Conquistas & Stats
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Ribbon -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/80">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-xs font-medium">Patógenos Neutros</span>
+            <i class="fa-solid fa-shield-virus text-emerald-400"></i>
+          </div>
+          <div class="text-2xl font-bold font-mono text-white" id="stat-pathogens-count">0</div>
+          <div class="text-[11px] text-emerald-400 mt-1"><i class="fa-solid fa-circle-check mr-1"></i>BioGuard Pro</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/80">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-xs font-medium">Precisão de Triagem</span>
+            <i class="fa-solid fa-user-doctor text-rose-400"></i>
+          </div>
+          <div class="text-2xl font-bold font-mono text-white" id="stat-triage-acc">0%</div>
+          <div class="text-[11px] text-rose-400 mt-1"><i class="fa-solid fa-clipboard-check mr-1"></i>Vitalis ER</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/80">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-xs font-medium">Estabilidade Motora</span>
+            <i class="fa-solid fa-wave-square text-cyan-400"></i>
+          </div>
+          <div class="text-2xl font-bold font-mono text-white" id="stat-rehab-acc">0%</div>
+          <div class="text-[11px] text-cyan-400 mt-1"><i class="fa-solid fa-bullseye mr-1"></i>RehabQuest</div>
+        </div>
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/80">
+          <div class="flex items-center justify-between text-slate-400 mb-1">
+            <span class="text-xs font-medium">Sessões Mindfulness</span>
+            <i class="fa-solid fa-brain text-violet-400"></i>
+          </div>
+          <div class="text-2xl font-bold font-mono text-white" id="stat-zen-sessions">0</div>
+          <div class="text-[11px] text-violet-400 mt-1"><i class="fa-solid fa-leaf mr-1"></i>MenteViva Pro</div>
+        </div>
+      </div>
+
+      <!-- 4 Main Interactive Game Cards Grid -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+          <i class="fa-solid fa-gamepad text-cyan-400"></i>
+          <span>Módulos de Simulação Gamificada</span>
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- Card 1: BioGuard -->
+          <div class="glass-card glass-card-hover rounded-3xl p-6 relative flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="flex items-start justify-between">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-shield-virus"></i>
+                </div>
+                <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-800/50 text-emerald-400 font-semibold">Estratégia Imunológica</span>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">1. BioGuard Pro</h3>
+                <p class="text-slate-400 text-xs mt-1 leading-relaxed">
+                  Defenda o organismo humano implantando Macrófagos, Linfócitos T e Anticorpos contra invasões de vírus, bactérias e fungos mutantes.
+                </p>
+              </div>
+              <div class="flex items-center space-x-4 text-xs font-mono text-slate-400 pt-2 border-t border-slate-800">
+                <span><i class="fa-solid fa-layer-group text-emerald-400 mr-1"></i>Ondas contínuas</span>
+                <span><i class="fa-solid fa-bolt text-amber-400 mr-1"></i>Gestão de ATP</span>
+              </div>
+            </div>
+            <button onclick="switchTab('bioguard')" class="mt-6 w-full py-3 rounded-xl bg-slate-800 hover:bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center space-x-2">
+              <span>Iniciar Defesa Imune</span>
+              <i class="fa-solid fa-play"></i>
+            </button>
+          </div>
+
+          <!-- Card 2: Vitalis -->
+          <div class="glass-card glass-card-hover rounded-3xl p-6 relative flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="flex items-start justify-between">
+                <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 text-2xl group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-stethoscope"></i>
+                </div>
+                <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-rose-950/80 border border-rose-800/50 text-rose-400 font-semibold">Simulação Clínica</span>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-white group-hover:text-rose-400 transition-colors">2. Vitalis Pro: Plantão ER</h3>
+                <p class="text-slate-400 text-xs mt-1 leading-relaxed">
+                  Gerencie o pronto-socorro com o Protocolo Internacional de Manchester. Analise ECG em tempo real, sinais vitais e quadro sintomático.
+                </p>
+              </div>
+              <div class="flex items-center space-x-4 text-xs font-mono text-slate-400 pt-2 border-t border-slate-800">
+                <span><i class="fa-solid fa-heart-pulse text-rose-400 mr-1"></i>ECG Animado</span>
+                <span><i class="fa-solid fa-stopwatch text-amber-400 mr-1"></i>Triagem sob tempo</span>
+              </div>
+            </div>
+            <button onclick="switchTab('vitalis')" class="mt-6 w-full py-3 rounded-xl bg-slate-800 hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center space-x-2">
+              <span>Entrar no Plantão</span>
+              <i class="fa-solid fa-play"></i>
+            </button>
+          </div>
+
+          <!-- Card 3: RehabQuest -->
+          <div class="glass-card glass-card-hover rounded-3xl p-6 relative flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="flex items-start justify-between">
+                <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-hand-holding-medical"></i>
+                </div>
+                <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-800/50 text-cyan-400 font-semibold">Fisioterapia & Controle</span>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors">3. RehabQuest Pro</h3>
+                <p class="text-slate-400 text-xs mt-1 leading-relaxed">
+                  Treino neuromotor de precisão articulada, curvas de movimento contínuo (Lissajous) e medição quantitativa de tremor/estabilidade.
+                </p>
+              </div>
+              <div class="flex items-center space-x-4 text-xs font-mono text-slate-400 pt-2 border-t border-slate-800">
+                <span><i class="fa-solid fa-chart-line text-cyan-400 mr-1"></i>Análise de Tremor</span>
+                <span><i class="fa-solid fa-bullseye text-emerald-400 mr-1"></i>3 Modos Físicos</span>
+              </div>
+            </div>
+            <button onclick="switchTab('rehab')" class="mt-6 w-full py-3 rounded-xl bg-slate-800 hover:bg-cyan-600 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center space-x-2">
+              <span>Iniciar Exercício</span>
+              <i class="fa-solid fa-play"></i>
+            </button>
+          </div>
+
+          <!-- Card 4: MenteViva -->
+          <div class="glass-card glass-card-hover rounded-3xl p-6 relative flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="flex items-start justify-between">
+                <div class="w-12 h-12 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-violet-400 text-2xl group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-spa"></i>
+                </div>
+                <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-violet-950/80 border border-violet-800/50 text-violet-400 font-semibold">Psicorregulação & TCC</span>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-white group-hover:text-violet-400 transition-colors">4. MenteViva Pro</h3>
+                <p class="text-slate-400 text-xs mt-1 leading-relaxed">
+                  Espaço Zen com ritmos de respiração guiada, gerador de tons binaurais suaves, desconstrução de distorções cognitivas (TCC) e tracker.
+                </p>
+              </div>
+              <div class="flex items-center space-x-4 text-xs font-mono text-slate-400 pt-2 border-t border-slate-800">
+                <span><i class="fa-solid fa-wind text-violet-400 mr-1"></i>Respiração 4-7-8</span>
+                <span><i class="fa-solid fa-brain text-emerald-400 mr-1"></i>Treino de TCC</span>
+              </div>
+            </div>
+            <button onclick="switchTab('menteviva')" class="mt-6 w-full py-3 rounded-xl bg-slate-800 hover:bg-violet-600 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center space-x-2">
+              <span>Entrar no Espaço Zen</span>
+              <i class="fa-solid fa-play"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- TAB 2: BIOGUARD PRO (TOWER / IMMUNE DEFENSE)                 -->
+    <!-- ------------------------------------------------------------- -->
+    <section id="tab-bioguard" class="tab-content hidden space-y-6">
+      
+      <!-- Top Control Header -->
+      <div class="glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+            <i class="fa-solid fa-shield-virus text-emerald-400"></i>
+            <span>BioGuard Pro: Guerra Imunológica</span>
+          </h2>
+          <p class="text-xs text-slate-400">Posicione células imunológicas estratégicas para proteger o núcleo vital dos patógenos.</p>
+        </div>
+
+        <!-- In-Game Stats -->
+        <div class="flex items-center space-x-4 bg-slate-900/90 px-4 py-2 rounded-xl border border-slate-800 font-mono text-xs">
+          <div>
+            <span class="text-slate-400">Vida:</span>
+            <span id="bg-hp-text" class="text-emerald-400 font-bold ml-1">100%</span>
+          </div>
+          <div class="h-4 w-px bg-slate-800"></div>
+          <div>
+            <span class="text-slate-400">ATP:</span>
+            <span id="bg-atp-text" class="text-amber-400 font-bold ml-1">100</span>
+          </div>
+          <div class="h-4 w-px bg-slate-800"></div>
+          <div>
+            <span class="text-slate-400">Onda:</span>
+            <span id="bg-wave-text" class="text-cyan-400 font-bold ml-1">1</span>
+          </div>
+          <div class="h-4 w-px bg-slate-800"></div>
+          <div>
+            <span class="text-slate-400">Pontos:</span>
+            <span id="bg-score-text" class="text-white font-bold ml-1">0</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center space-x-2">
+          <button id="bg-start-btn" onclick="bioGuardStartWave()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase transition-all shadow-lg shadow-emerald-500/20">
+            <i class="fa-solid fa-play mr-1"></i>Iniciar Onda
+          </button>
+          <button onclick="bioGuardReset()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-all">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Game Grid / Area -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Left: Canvas Area -->
+        <div class="lg:col-span-3 glass-card rounded-2xl p-3 relative flex flex-col items-center justify-center min-h-[460px]">
+          <canvas id="bioguard-canvas" width="760" height="440" class="w-full h-auto rounded-xl bg-slate-950 border border-slate-800/80 cursor-pointer"></canvas>
+          
+          <!-- Floating Health Bar Overlay -->
+          <div class="w-full mt-3 px-2 flex items-center space-x-3">
+            <span class="text-xs text-slate-400 font-mono">Integridade Orgânica:</span>
+            <div class="flex-grow h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+              <div id="bg-hp-bar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 w-full transition-all duration-300"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Unit Store & Info -->
+        <div class="glass-card p-5 rounded-2xl space-y-5 flex flex-col justify-between">
+          <div class="space-y-4">
+            <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center space-x-2">
+              <i class="fa-solid fa-dna text-cyan-400"></i>
+              <span>Arsenal Imunológico</span>
+            </h3>
+
+            <!-- Unit Selector Buttons -->
+            <div class="space-y-3">
+              <!-- Unit 1: Macrophage -->
+              <div onclick="bioGuardSelectUnit('macrophage')" id="unit-card-macrophage" class="unit-selector p-3 rounded-xl bg-slate-900 border border-emerald-500/50 cursor-pointer hover:bg-slate-800/80 transition-all flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-bacteria"></i>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-white">Macrófago</div>
+                    <div class="text-[10px] text-slate-400">Dano Pesado de Perto</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs font-mono font-bold text-amber-400">30 ATP</div>
+                  <div class="text-[10px] text-slate-500">Teclas [1]</div>
+                </div>
+              </div>
+
+              <!-- Unit 2: T-Cell -->
+              <div onclick="bioGuardSelectUnit('tcell')" id="unit-card-tcell" class="unit-selector p-3 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer hover:bg-slate-800/80 transition-all flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-crosshair"></i>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-white">Linfócito T-Killer</div>
+                    <div class="text-[10px] text-slate-400">Disparo Rápido de Antígeno</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs font-mono font-bold text-amber-400">45 ATP</div>
+                  <div class="text-[10px] text-slate-500">Teclas [2]</div>
+                </div>
+              </div>
+
+              <!-- Unit 3: IgG Antibody -->
+              <div onclick="bioGuardSelectUnit('antibody')" id="unit-card-antibody" class="unit-selector p-3 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer hover:bg-slate-800/80 transition-all flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-lg bg-violet-500/20 text-violet-400 flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-atom"></i>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-white">Anticorpo IgG</div>
+                    <div class="text-[10px] text-slate-400">Explosão em Área (AoE)</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs font-mono font-bold text-amber-400">60 ATP</div>
+                  <div class="text-[10px] text-slate-500">Teclas [3]</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Guide / Pathogen Codex -->
+          <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800 text-[11px] space-y-2 text-slate-400">
+            <div class="font-bold text-slate-300 flex items-center space-x-1">
+              <i class="fa-solid fa-circle-info text-cyan-400"></i><span>Tipos de Patógenos:</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span><i class="fa-solid fa-circle text-rose-500 text-[8px] mr-1"></i>Vírus Mutante:</span>
+              <span class="font-mono text-slate-300">Rápido / Baixa HP</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span><i class="fa-solid fa-square text-emerald-500 text-[8px] mr-1"></i>Bactéria Tanque:</span>
+              <span class="font-mono text-slate-300">Lento / Alta HP</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span><i class="fa-solid fa-triangle text-violet-500 text-[8px] mr-1"></i>Fungo Esporulado:</span>
+              <span class="font-mono text-slate-300">Divide ao morrer</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- TAB 3: VITALIS PRO (CLINICAL TRIAGE SIMULATOR)               -->
+    <!-- ------------------------------------------------------------- -->
+    <section id="tab-vitalis" class="tab-content hidden space-y-6">
+      
+      <!-- Header -->
+      <div class="glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+            <i class="fa-solid fa-stethoscope text-rose-400"></i>
+            <span>Vitalis Pro: Triagem de Pronto-Socorro</span>
+          </h2>
+          <p class="text-xs text-slate-400">Classifique a prioridade dos pacientes segundo o Protocolo de Manchester antes que o tempo esgoste.</p>
+        </div>
+
+        <div class="flex items-center space-x-4 bg-slate-900/90 px-4 py-2 rounded-xl border border-slate-800 font-mono text-xs">
+          <div>
+            <span class="text-slate-400">Atendidos:</span>
+            <span id="vt-count" class="text-cyan-400 font-bold ml-1">0/10</span>
+          </div>
+          <div class="h-4 w-px bg-slate-800"></div>
+          <div>
+            <span class="text-slate-400">Acertos:</span>
+            <span id="vt-score" class="text-emerald-400 font-bold ml-1">0</span>
+          </div>
+          <div class="h-4 w-px bg-slate-800"></div>
+          <div>
+            <span class="text-slate-400">Precisão:</span>
+            <span id="vt-acc" class="text-amber-400 font-bold ml-1">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Triage Interface -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Patient Monitor & Vitals (5 cols) -->
+        <div class="lg:col-span-5 glass-card rounded-2xl p-5 space-y-5 border border-slate-800">
+          
+          <!-- Patient Profile Card Header -->
+          <div class="flex items-center space-x-4 pb-4 border-b border-slate-800">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-500/20 to-violet-500/20 border border-rose-500/30 flex items-center justify-center text-slate-200 text-2xl font-bold" id="vt-patient-avatar">
+              <i class="fa-solid fa-user-injured"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white" id="vt-patient-name">Carregando paciente...</h3>
+              <div class="text-xs text-slate-400 font-mono flex items-center space-x-2 mt-0.5">
+                <span id="vt-patient-meta">-- anos | Gen: --</span>
+                <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]" id="vt-patient-id">ID #0000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-Time Dynamic ECG Monitor Canvas -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="text-slate-400 flex items-center space-x-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping mr-1"></span>
+                <span>ECG Monitor (Derivação II)</span>
+              </span>
+              <span class="text-emerald-400 font-bold" id="vt-ecg-rate-text">75 BPM</span>
+            </div>
+            <div class="relative bg-slate-950 rounded-xl p-2 border border-slate-800">
+              <canvas id="vt-ecg-canvas" width="400" height="100" class="w-full h-24"></canvas>
+            </div>
+          </div>
+
+          <!-- Vitals Grid -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+              <div class="text-[10px] text-slate-400 uppercase font-mono">Frequência Cardíaca</div>
+              <div class="text-lg font-bold font-mono text-rose-400 mt-0.5" id="vt-vital-hr">-- BPM</div>
+            </div>
+            <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+              <div class="text-[10px] text-slate-400 uppercase font-mono">Pressão Arterial</div>
+              <div class="text-lg font-bold font-mono text-cyan-400 mt-0.5" id="vt-vital-bp">--/-- mmHg</div>
+            </div>
+            <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+              <div class="text-[10px] text-slate-400 uppercase font-mono">Saturação de O₂</div>
+              <div class="text-lg font-bold font-mono text-emerald-400 mt-0.5" id="vt-vital-spo2">--%</div>
+            </div>
+            <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+              <div class="text-[10px] text-slate-400 uppercase font-mono">Temperatura</div>
+              <div class="text-lg font-bold font-mono text-amber-400 mt-0.5" id="vt-vital-temp">-- °C</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Case Anamnesis & Manchester Selection (7 cols) -->
+        <div class="lg:col-span-7 glass-card rounded-2xl p-6 space-y-6 flex flex-col justify-between">
+          
+          <div class="space-y-4">
+            <!-- Complaint Box -->
+            <div>
+              <span class="text-xs font-mono text-cyan-400 uppercase font-semibold">Anamnese de Admissão:</span>
+              <div class="mt-2 p-4 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-sm leading-relaxed" id="vt-complaint-text">
+                Carregando descrição do paciente...
+              </div>
+            </div>
+
+            <!-- Timer Bar -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-mono text-slate-400">
+                <span>Tempo de Avaliação:</span>
+                <span id="vt-timer-text" class="text-amber-400 font-bold">15s</span>
+              </div>
+              <div class="h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                <div id="vt-timer-bar" class="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500 w-full transition-all duration-1000"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Manchester Triage Priority Buttons -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Selecione o Nível de Triagem (Protocolo Manchester):</h4>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+
+              <!-- Red: Emergency -->
+              <button onclick="vitalisSubmitTriage('red')" class="p-3 rounded-xl bg-rose-950/60 border border-rose-500/60 hover:bg-rose-900/80 text-left transition-all flex items-center justify-between group">
+                <div class="flex items-center space-x-3">
+                  <span class="w-4 h-4 rounded-full bg-rose-500 shadow-lg shadow-rose-500/50"></span>
+                  <div>
+                    <div class="text-xs font-bold text-rose-200">Vermelho - Emergência</div>
+                    <div class="text-[10px] text-rose-300/70">Atendimento Imediato (0 min)</div>
+                  </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+              </button>
+
+              <!-- Orange: Very Urgent -->
+              <button onclick="vitalisSubmitTriage('orange')" class="p-3 rounded-xl bg-amber-950/60 border border-amber-500/60 hover:bg-amber-900/80 text-left transition-all flex items-center justify-between group">
+                <div class="flex items-center space-x-3">
+                  <span class="w-4 h-4 rounded-full bg-amber-500 shadow-lg shadow-amber-500/50"></span>
+                  <div>
+                    <div class="text-xs font-bold text-amber-200">Laranja - Muito Urgente</div>
+                    <div class="text-[10px] text-amber-300/70">Tempo alvo: até 10 min</div>
+                  </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+              </button>
+
+              <!-- Yellow: Urgent -->
+              <button onclick="vitalisSubmitTriage('yellow')" class="p-3 rounded-xl bg-yellow-950/60 border border-yellow-500/60 hover:bg-yellow-900/80 text-left transition-all flex items-center justify-between group">
+                <div class="flex items-center space-x-3">
+                  <span class="w-4 h-4 rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/50"></span>
+                  <div>
+                    <div class="text-xs font-bold text-yellow-200">Amarelo - Urgente</div>
+                    <div class="text-[10px] text-yellow-300/70">Tempo alvo: até 60 min</div>
+                  </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+              </button>
+
+              <!-- Green: Standard -->
+              <button onclick="vitalisSubmitTriage('green')" class="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/60 hover:bg-emerald-900/80 text-left transition-all flex items-center justify-between group">
+                <div class="flex items-center space-x-3">
+                  <span class="w-4 h-4 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50"></span>
+                  <div>
+                    <div class="text-xs font-bold text-emerald-200">Verde - Pouco Urgente</div>
+                    <div class="text-[10px] text-emerald-300/70">Tempo alvo: até 120 min</div>
+                  </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+              </button>
+
+              <!-- Blue: Non Urgent -->
+              <button onclick="vitalisSubmitTriage('blue')" class="sm:col-span-2 p-3 rounded-xl bg-cyan-950/60 border border-cyan-500/60 hover:bg-cyan-900/80 text-left transition-all flex items-center justify-between group">
+                <div class="flex items-center space-x-3">
+                  <span class="w-4 h-4 rounded-full bg-cyan-500 shadow-lg shadow-cyan-500/50"></span>
+                  <div>
+                    <div class="text-xs font-bold text-cyan-200">Azul - Não Urgente</div>
+                    <div class="text-[10px] text-cyan-300/70">Atendimento Eletivo (até 240 min)</div>
+                  </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- TAB 4: REHABQUEST PRO (MOTOR REHABILITATION)                 -->
+    <!-- ------------------------------------------------------------- -->
+    <section id="tab-rehab" class="tab-content hidden space-y-6">
+      
+      <!-- Control Bar -->
+      <div class="glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+            <i class="fa-solid fa-hand-holding-medical text-cyan-400"></i>
+            <span>RehabQuest Pro: Controle Motor</span>
+          </h2>
+          <p class="text-xs text-slate-400">Execute exercícios de fisioterapia para medir estabilidade, amplitude e coordenação motor-físico.</p>
+        </div>
+
+        <div class="flex items-center space-x-4 bg-slate-900/90 px-4 py-2 rounded-xl border border-slate-800 font-mono text-xs">
+          <div>
+            <span class="text-slate-400">Precisão:</span>
+            <span id="rh-precision-text" class="text-cyan-400 font-bold ml-1">0%</span>
+          </div>
+          <div class="h-4 w-px bg-slate-800"></div>
+          <div>
+            <span class="text-slate-400">Índice Tremor:</span>
+            <span id="rh-tremor-text" class="text-emerald-400 font-bold ml-1">0.0 (Estável)</span>
+          </div>
+          <div class="h-4 w-px bg-slate-800"></div>
+          <div>
+            <span class="text-slate-400">Tempo:</span>
+            <span id="rh-timer-text" class="text-amber-400 font-bold ml-1">30s</span>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button id="rh-start-btn" onclick="rehabStartSession()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs uppercase transition-all shadow-lg shadow-cyan-500/20">
+            <i class="fa-solid fa-play mr-1"></i>Iniciar Treino (30s)
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Rehab Canvas & Mode Controls Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Left: Motor Canvas Target (3 cols) -->
+        <div class="lg:col-span-3 glass-card rounded-2xl p-4 flex flex-col items-center justify-center min-h-[460px] relative">
+          
+          <canvas id="rehab-canvas" width="760" height="440" class="w-full h-auto rounded-xl bg-slate-950 border border-slate-800 cursor-crosshair"></canvas>
+
+          <!-- Motor Performance Real-Time Graph Overlay -->
+          <div class="w-full mt-3 p-3 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center space-x-4">
+            <span class="text-xs font-mono text-slate-400 shrink-0">Gráfico de Sinal Motriz:</span>
+            <canvas id="rehab-graph-canvas" width="500" height="30" class="w-full h-8 bg-slate-950 rounded border border-slate-800"></canvas>
+          </div>
+        </div>
+
+        <!-- Right: Mode Selector & Settings (1 col) -->
+        <div class="glass-card p-5 rounded-2xl space-y-6 flex flex-col justify-between">
+          
+          <div class="space-y-4">
+            <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Modos de Reabilitação:</h3>
+            
+            <div class="space-y-2.5">
+              
+              <!-- Mode 1 -->
+              <button onclick="rehabSetMode('lissajous')" id="rh-mode-lissajous" class="w-full p-3 rounded-xl bg-slate-900 border border-cyan-500 text-left hover:bg-slate-800 transition-all">
+                <div class="text-xs font-bold text-white flex items-center space-x-2">
+                  <i class="fa-solid fa-infinity text-cyan-400"></i>
+                  <span>Trajetória Curvilínea</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">Acompanhe a curva de Lissajous sem desviar do centro.</p>
+              </button>
+
+              <!-- Mode 2 -->
+              <button onclick="rehabSetMode('pinch')" id="rh-mode-pinch" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-800 text-left hover:bg-slate-800 transition-all">
+                <div class="text-xs font-bold text-white flex items-center space-x-2">
+                  <i class="fa-solid fa-bullseye text-emerald-400"></i>
+                  <span>Estabilidade de Pinça</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">Mantenha o cursor imóvel dentro do alvo dinâmico.</p>
+              </button>
+
+              <!-- Mode 3 -->
+              <button onclick="rehabSetMode('reflex')" id="rh-mode-reflex" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-800 text-left hover:bg-slate-800 transition-all">
+                <div class="text-xs font-bold text-white flex items-center space-x-2">
+                  <i class="fa-solid fa-bolt text-amber-400"></i>
+                  <span>Reação Reflexa</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">Toque nos alvos de disparo antes que diminuam.</p>
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Difficulty / Speed Controls -->
+          <div class="space-y-3 pt-4 border-t border-slate-800">
+            <div class="flex justify-between text-xs font-mono">
+              <span class="text-slate-400">Velocidade da Trajetória:</span>
+              <span id="rh-speed-val" class="text-cyan-400 font-bold">Normal</span>
+            </div>
+            <input type="range" id="rh-speed-slider" min="1" max="3" value="2" onchange="rehabUpdateSpeed(this.value)" class="w-full accent-cyan-400 cursor-pointer">
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- TAB 5: MENTEVIVA PRO (ZEN & CBT COGNITIVE REGULATION)        -->
+    <!-- ------------------------------------------------------------- -->
+    <section id="tab-menteviva" class="tab-content hidden space-y-6">
+      
+      <!-- Sub-Navigation for MenteViva -->
+      <div class="glass-card p-3 rounded-2xl flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-9 h-9 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-spa"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">MenteViva Pro: Psicorregulação & Zen</h2>
+            <p class="text-xs text-slate-400">Exercícios de respiração, reestruturação cognitiva e hábitos mentais.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+          <button onclick="mentevivaSubTab('breath')" id="mv-sub-breath" class="px-3 py-1.5 rounded-lg font-bold bg-violet-600 text-white transition-all">
+            <i class="fa-solid fa-wind mr-1"></i>Respiração
+          </button>
+          <button onclick="mentevivaSubTab('cbt')" id="mv-sub-cbt" class="px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition-all">
+            <i class="fa-solid fa-brain mr-1"></i>Desafio TCC
+          </button>
+          <button onclick="mentevivaSubTab('habits')" id="mv-sub-habits" class="px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition-all">
+            <i class="fa-solid fa-list-check mr-1"></i>Tracker Hábitos
+          </button>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 1: BREATHING REGULATION -->
+      <div id="mv-pane-breath" class="space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Visualizer Circle (2 cols) -->
+          <div class="lg:col-span-2 glass-card rounded-3xl p-8 flex flex-col items-center justify-center min-h-[420px] relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-b from-violet-500/5 to-transparent pointer-events-none"></div>
+            
+            <!-- Dynamic Canvas Visualizer -->
+            <canvas id="breath-canvas" width="340" height="340" class="relative z-10"></canvas>
+
+            <div class="relative z-10 mt-6 text-center space-y-2">
+              <div id="breath-phase-text" class="text-2xl font-bold font-mono text-violet-300">Inspire profundamente</div>
+              <div id="breath-timer-text" class="text-sm font-mono text-slate-400">Ciclo 1 de 4</div>
+            </div>
+          </div>
+
+          <!-- Breathing Controls & Audio Synth -->
+          <div class="glass-card p-6 rounded-3xl space-y-6 flex flex-col justify-between">
+            <div class="space-y-4">
+              <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider">Técnica Respiratória:</h3>
+              
+              <div class="space-y-2.5">
+                <button onclick="mvSetTechnique('478')" id="mv-tech-478" class="w-full p-3 rounded-xl bg-slate-900 border border-violet-500 text-left hover:bg-slate-800 transition-all">
+                  <div class="text-xs font-bold text-white">Respiração 4-7-8 (Relaxamento Profundo)</div>
+                  <div class="text-[10px] text-slate-400">Inspira 4s | Retém 7s | Expira 8s</div>
+                </button>
+                <button onclick="mvSetTechnique('box')" id="mv-tech-box" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-800 text-left hover:bg-slate-800 transition-all">
+                  <div class="text-xs font-bold text-white">Respiração Quadrada (Foco 4-4-4-4)</div>
+                  <div class="text-[10px] text-slate-400">Inspira 4s | Retém 4s | Expira 4s | Pausa 4s</div>
+                </button>
+              </div>
+
+              <!-- Ambient Audio Toggle -->
+              <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-medium text-slate-300 flex items-center space-x-2">
+                    <i class="fa-solid fa-music text-violet-400"></i>
+                    <span>Tons Binaurais (432Hz)</span>
+                  </span>
+                  <input type="checkbox" id="mv-ambient-toggle" onchange="mvToggleAmbientSound(this.checked)" class="accent-violet-500 w-4 h-4 cursor-pointer">
+                </div>
+                <p class="text-[10px] text-slate-400">Gera sintetizações sonoras em frequência alfa para acalmar a atividade neurológica.</p>
+              </div>
+            </div>
+
+            <button id="mv-breath-btn" onclick="mvToggleBreathingSession()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-violet-600/30">
+              <i class="fa-solid fa-play mr-1"></i>Iniciar Ciclo Zen
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SUB-TAB 2: CBT COGNITIVE RESTRUCTURING GAME -->
+      <div id="mv-pane-cbt" class="hidden space-y-6">
+        <div class="glass-card p-6 rounded-3xl space-y-6">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div>
+              <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                <i class="fa-solid fa-brain text-violet-400"></i>
+                <span>Reestruturação Cognitiva (Terapia Cognitivo-Comportamental)</span>
+              </h3>
+              <p class="text-xs text-slate-400">Identifique a distorção cognitiva no pensamento automático e selecione o enquadramento saudável.</p>
+            </div>
+            <div class="text-right font-mono">
+              <span class="text-xs text-slate-400">Pontuação TCC:</span>
+              <span id="cbt-score-text" class="text-lg font-bold text-emerald-400 ml-2">0 pts</span>
+            </div>
+          </div>
+
+          <!-- Thought Card Game Container -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Thought Card -->
+            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 flex flex-col justify-between">
+              <div>
+                <span class="px-2.5 py-1 rounded bg-rose-950 text-rose-400 border border-rose-800/50 text-[10px] font-mono font-bold uppercase">Pensamento Automático Disfuncional</span>
+                <p id="cbt-thought-text" class="text-base text-slate-100 font-medium italic mt-4 leading-relaxed">
+                  "Errei um procedimento simples na simulação. Nunca serei um bom profissional de saúde."
+                </p>
+              </div>
+              <div class="text-xs text-slate-500 font-mono" id="cbt-card-counter">Caso 1 de 6</div>
+            </div>
+
+            <!-- Options Selection -->
+            <div class="space-y-4">
+              <h4 class="text-xs font-bold text-slate-300 uppercase">Qual é a Distorção Cognitiva & Enquadramento Racional?</h4>
+              
+              <div class="space-y-3" id="cbt-options-container">
+                <!-- Dynamically Populated Options -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 3: HABITS TRACKER -->
+      <div id="mv-pane-habits" class="hidden space-y-6">
+        <div class="glass-card p-6 rounded-3xl space-y-6">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div>
+              <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                <i class="fa-solid fa-list-check text-emerald-400"></i>
+                <span>Rastreador de Micro-Hábitos de Saúde e Bem-Estar</span>
+              </h3>
+              <p class="text-xs text-slate-400">Registre sua rotina diária para acumular pontos de saúde integrada.</p>
+            </div>
+            <div class="text-xs font-mono text-emerald-400 font-bold" id="habit-progress-text">0/5 Concluídos</div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="habits-container">
+            <!-- Dynamically populated habits -->
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="glass-card border-t border-slate-800/80 mt-12 py-6 px-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div>
+        <span class="font-bold text-slate-400">Portal Saúde GameLab Pro</span> &copy; 2026. Todos os direitos reservados.
+      </div>
+      <div class="flex items-center space-x-4 text-slate-400">
+        <span><i class="fa-solid fa-code text-cyan-400 mr-1"></i>Single-File App Engine</span>
+        <span><i class="fa-solid fa-wave-square text-emerald-400 mr-1"></i>Web Audio Synth</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODALS & TOAST NOTIFICATIONS ==================== -->
+  
+  <!-- Global Diagnostic / Feedback Modal -->
+  <div id="app-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+    <div class="glass-card max-w-md w-full rounded-3xl p-6 border border-slate-700 shadow-2xl space-y-5 transform scale-95 transition-transform duration-300" id="modal-box">
+      <div class="flex items-start justify-between">
+        <div class="flex items-center space-x-3">
+          <div id="modal-icon-bg" class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl font-bold">
+            <i id="modal-icon" class="fa-solid fa-circle-check"></i>
+          </div>
+          <div>
+            <h3 id="modal-title" class="text-lg font-bold text-white">Título do Feedback</h3>
+            <p id="modal-subtitle" class="text-xs text-slate-400">Subtítulo explicativo</p>
+          </div>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div id="modal-body" class="text-sm text-slate-300 leading-relaxed bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+        Mensagem detalhada aqui...
+      </div>
+
+      <button onclick="closeModal()" id="modal-confirm-btn" class="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all">
+        Continuar
+      </button>
+    </div>
+  </div>
+
+  <!-- Global Stats Modal -->
+  <div id="stats-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+    <div class="glass-card max-w-lg w-full rounded-3xl p-6 border border-slate-700 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+          <i class="fa-solid fa-trophy text-amber-400"></i>
+          <span>Relatório de Desempenho Global</span>
+        </h3>
+        <button onclick="hideGlobalStatsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Pontuação Total</div>
+            <div class="text-xl font-bold font-mono text-cyan-400" id="modal-stat-total-score">0 pts</div>
+          </div>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Recorde BioGuard</div>
+            <div class="text-xl font-bold font-mono text-emerald-400" id="modal-stat-bioguard">0 pts</div>
+          </div>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Acurácia Vitalis ER</div>
+            <div class="text-xl font-bold font-mono text-rose-400" id="modal-stat-vitalis">0%</div>
+          </div>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Precisão RehabQuest</div>
+            <div class="text-xl font-bold font-mono text-violet-400" id="modal-stat-rehab">0%</div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-slate-300 uppercase mb-2">Medalhas de Competência Médica:</h4>
+          <div class="grid grid-cols-2 gap-2" id="badges-container">
+            <!-- Dynamically populates badges -->
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3 pt-2">
+        <button onclick="resetAllStats()" class="px-4 py-2.5 rounded-xl bg-rose-950/60 border border-rose-800/50 hover:bg-rose-900 text-rose-400 text-xs font-bold transition-all">
+          Zerar Progresso
+        </button>
+        <button onclick="hideGlobalStatsModal()" class="flex-grow py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- ==================== JAVASCRIPT ENGINE ==================== -->
+  <script>
+    /* ===================================================================
+       1. WEB AUDIO API SOUND SYNTHESIZER
+       =================================================================== */
+    class AudioEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.binauralOsc1 = null;
+        this.binauralOsc2 = null;
+        this.binauralGain = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playClick() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+
+      playSuccess() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.12, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.25);
+        });
+      }
+
+      playLaser() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(900, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.12);
+      }
+
+      playExplosion() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.25);
+      }
+
+      playEcgBeep() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1046.5, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      }
+
+      startBinauralAlpha() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        this.stopBinauralAlpha();
+
+        this.binauralOsc1 = this.ctx.createOscillator();
+        this.binauralOsc2 = this.ctx.createOscillator();
+        this.binauralGain = this.ctx.createGain();
+
+        this.binauralOsc1.frequency.setValueAtTime(216, this.ctx.currentTime); // Base 216Hz
+        this.binauralOsc2.frequency.setValueAtTime(226, this.ctx.currentTime); // +10Hz Alpha differential
+
+        this.binauralGain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+
+        this.binauralOsc1.connect(this.binauralGain);
+        this.binauralOsc2.connect(this.binauralGain);
+        this.binauralGain.connect(this.ctx.destination);
+
+        this.binauralOsc1.start();
+        this.binauralOsc2.start();
+      }
+
+      stopBinauralAlpha() {
+        if (this.binauralOsc1) {
+          try { this.binauralOsc1.stop(); } catch(e){}
+          this.binauralOsc1 = null;
+        }
+        if (this.binauralOsc2) {
+          try { this.binauralOsc2.stop(); } catch(e){}
+          this.binauralOsc2 = null;
+        }
+      }
+    }
+
+    const audio = new AudioEngine();
+
+    function toggleSound() {
+      audio.muted = !audio.muted;
+      const icon = document.getElementById('sound-icon');
+      if (audio.muted) {
+        icon.className = 'fa-solid fa-volume-xmark text-rose-400';
+        audio.stopBinauralAlpha();
+        showToast('Som desativado', 'info');
+      } else {
+        icon.className = 'fa-solid fa-volume-high text-cyan-400';
+        audio.playClick();
+        showToast('Som ativado', 'info');
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    /* ===================================================================
+       2. STATE & NAVIGATION SYSTEM
+       =================================================================== */
+    const state = {
+      globalScore: 0,
+      pathogensKilled: 0,
+      triageCorrect: 0,
+      triageTotal: 0,
+      rehabPrecisionAvg: 0,
+      rehabTotalSessions: 0,
+      zenSessions: 0,
+      habitsDone: {}
+    };
+
+    function loadState() {
+      const saved = localStorage.getItem('gamelab_pro_state');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          Object.assign(state, parsed);
+        } catch(e){}
+      }
+      updateGlobalStatsDisplay();
+    }
+
+    function saveState() {
+      localStorage.setItem('gamelab_pro_state', JSON.stringify(state));
+      updateGlobalStatsDisplay();
+    }
+
+    function updateGlobalStatsDisplay() {
+      document.getElementById('global-score-display').innerText = `${state.globalScore} pts`;
+      document.getElementById('stat-pathogens-count').innerText = state.pathogensKilled;
+      
+      const triageAcc = state.triageTotal > 0 ? Math.round((state.triageCorrect / state.triageTotal) * 100) : 100;
+      document.getElementById('stat-triage-acc').innerText = `${triageAcc}%`;
+      document.getElementById('stat-rehab-acc').innerText = `${state.rehabPrecisionAvg || 0}%`;
+      document.getElementById('stat-zen-sessions').innerText = state.zenSessions;
+    }
+
+    function switchTab(tabId) {
+      audio.playClick();
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active-tab', 'bg-cyan-500/10', 'text-cyan-400', 'border', 'border-cyan-500/30'));
+
+      const activePane = document.getElementById(`tab-${tabId}`);
+      if (activePane) activePane.classList.remove('hidden');
+
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) {
+        activeNav.classList.add('active-tab', 'bg-cyan-500/10', 'text-cyan-400', 'border', 'border-cyan-500/30');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* Modal Controls */
+    function showModal(title, subtitle, bodyHtml, iconClass = 'fa-circle-check', iconColor = 'text-cyan-400') {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-subtitle').innerText = subtitle;
+      document.getElementById('modal-body').innerHTML = bodyHtml;
+      document.getElementById('modal-icon').className = `fa-solid ${iconClass} ${iconColor}`;
+      
+      const modal = document.getElementById('app-modal');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        document.getElementById('modal-box').classList.remove('scale-95');
+      }, 10);
+    }
+
+    function closeModal() {
+      audio.playClick();
+      const modal = document.getElementById('app-modal');
+      modal.classList.add('opacity-0');
+      document.getElementById('modal-box').classList.add('scale-95');
+      setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function showGlobalStatsModal() {
+      audio.playClick();
+      document.getElementById('modal-stat-total-score').innerText = `${state.globalScore} pts`;
+      document.getElementById('modal-stat-bioguard').innerText = `${state.pathogensKilled * 10} pts`;
+      
+      const triageAcc = state.triageTotal > 0 ? Math.round((state.triageCorrect / state.triageTotal) * 100) : 100;
+      document.getElementById('modal-stat-vitalis').innerText = `${triageAcc}%`;
+      document.getElementById('modal-stat-rehab').innerText = `${state.rehabPrecisionAvg || 0}%`;
+
+      // Badges render
+      const container = document.getElementById('badges-container');
+      const badges = [
+        { name: 'Imunologista Mestre', unlocked: state.pathogensKilled >= 20, icon: 'fa-shield-virus', color: 'text-emerald-400' },
+        { name: 'Médico de Triagem ER', unlocked: state.triageCorrect >= 5, icon: 'fa-user-doctor', color: 'text-rose-400' },
+        { name: 'Precisão Cirúrgica', unlocked: state.rehabPrecisionAvg >= 80, icon: 'fa-bullseye', color: 'text-cyan-400' },
+        { name: 'Mente Inabalável', unlocked: state.zenSessions >= 3, icon: 'fa-brain', color: 'text-violet-400' }
+      ];
+
+      container.innerHTML = badges.map(b => `
+        <div class="p-2.5 rounded-xl ${b.unlocked ? 'bg-slate-900 border border-slate-700' : 'bg-slate-950 opacity-40 border border-slate-900'} flex items-center space-x-2">
+          <i class="fa-solid ${b.icon} ${b.color} text-sm"></i>
+          <span class="text-xs font-medium text-slate-200">${b.name}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('stats-modal').classList.remove('hidden');
+    }
+
+    function hideGlobalStatsModal() {
+      audio.playClick();
+      document.getElementById('stats-modal').classList.add('hidden');
+    }
+
+    function resetAllStats() {
+      if (confirm("Tem certeza que deseja zerar todas as suas pontuações?")) {
+        localStorage.removeItem('gamelab_pro_state');
+        state.globalScore = 0;
+        state.pathogensKilled = 0;
+        state.triageCorrect = 0;
+        state.triageTotal = 0;
+        state.rehabPrecisionAvg = 0;
+        state.rehabTotalSessions = 0;
+        state.zenSessions = 0;
+        saveState();
+        hideGlobalStatsModal();
+        showToast('Estatísticas zeradas com sucesso.', 'info');
+      }
+    }
+
+    function showToast(msg, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bg = type === 'success' ? 'bg-emerald-950 border-emerald-700 text-emerald-200' : 'bg-slate-900 border-slate-700 text-slate-200';
+      toast.className = `p-3 rounded-xl border text-xs font-semibold shadow-2xl flex items-center space-x-2 pointer-events-auto transition-all transform translate-y-2 opacity-0 ${bg}`;
+      toast.innerHTML = `<i class="fa-solid fa-info-circle"></i><span>${msg}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    /* ===================================================================
+       3. GAME 1: BIOGUARD PRO (TOWER / IMMUNE DEFENSE ENGINE)
+       =================================================================== */
+    let bgCanvas, bgCtx;
+    let bgHp = 100, bgAtp = 100, bgWave = 1, bgScore = 0;
+    let bgSelectedUnit = 'macrophage';
+    let bgRunning = false;
+    let bgTowers = [], bgEnemies = [], bgParticles = [], bgProjectiles = [];
+
+    const bgTowerCosts = { macrophage: 30, tcell: 45, antibody: 60 };
+
+    function bioGuardInit() {
+      bgCanvas = document.getElementById('bioguard-canvas');
+      bgCtx = bgCanvas.getContext('2d');
+      bgCanvas.addEventListener('click', bioGuardCanvasClick);
+      requestAnimationFrame(bioGuardLoop);
+    }
+
+    function bioGuardSelectUnit(type) {
+      audio.playClick();
+      bgSelectedUnit = type;
+      document.querySelectorAll('.unit-selector').forEach(el => el.classList.remove('border-emerald-500', 'border-cyan-500', 'border-violet-500', 'bg-slate-800'));
+      const activeCard = document.getElementById(`unit-card-${type}`);
+      if (activeCard) activeCard.classList.add('border-emerald-500', 'bg-slate-800');
+    }
+
+    function bioGuardStartWave() {
+      if (bgRunning) return;
+      audio.playClick();
+      bgRunning = true;
+      document.getElementById('bg-start-btn').classList.add('opacity-50', 'pointer-events-none');
+      
+      // Spawn enemies for wave
+      let count = bgWave * 5 + 3;
+      let spawned = 0;
+      let spawnInterval = setInterval(() => {
+        if (spawned >= count) {
+          clearInterval(spawnInterval);
+          return;
+        }
+        spawned++;
+        const rand = Math.random();
+        let type = 'virus';
+        if (rand > 0.6) type = 'bacteria';
+        if (rand > 0.85) type = 'fungus';
+
+        bgEnemies.push({
+          x: Math.random() * (bgCanvas.width - 100) + 50,
+          y: -20,
+          type: type,
+          hp: type === 'bacteria' ? 80 : (type === 'fungus' ? 40 : 25),
+          maxHp: type === 'bacteria' ? 80 : (type === 'fungus' ? 40 : 25),
+          speed: type === 'virus' ? 2.2 : (type === 'bacteria' ? 0.8 : 1.3),
+          radius: type === 'bacteria' ? 14 : 10
+        });
+      }, 800);
+    }
+
+    function bioGuardReset() {
+      audio.playClick();
+      bgHp = 100; bgAtp = 100; bgWave = 1; bgScore = 0;
+      bgTowers = []; bgEnemies = []; bgParticles = []; bgProjectiles = [];
+      bgRunning = false;
+      document.getElementById('bg-start-btn').classList.remove('opacity-50', 'pointer-events-none');
+      bioGuardUpdateUI();
+    }
+
+    function bioGuardCanvasClick(e) {
+      const rect = bgCanvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * (bgCanvas.width / rect.width);
+      const y = (e.clientY - rect.top) * (bgCanvas.height / rect.height);
+
+      const cost = bgTowerCosts[bgSelectedUnit];
+      if (bgAtp < cost) {
+        showToast('ATP Insuficiente!', 'info');
+        return;
+      }
+
+      // Check distance from existing towers
+      for (let t of bgTowers) {
+        if (Math.hypot(t.x - x, t.y - y) < 35) return;
+      }
+
+      bgAtp -= cost;
+      audio.playClick();
+      bgTowers.push({
+        x: x, y: y,
+        type: bgSelectedUnit,
+        range: bgSelectedUnit === 'tcell' ? 140 : 90,
+        lastShoot: 0,
+        cooldown: bgSelectedUnit === 'tcell' ? 250 : (bgSelectedUnit === 'macrophage' ? 600 : 900)
+      });
+
+      bioGuardUpdateUI();
+    }
+
+    function bioGuardUpdateUI() {
+      document.getElementById('bg-hp-text').innerText = `${Math.max(0, bgHp)}%`;
+      document.getElementById('bg-atp-text').innerText = bgAtp;
+      document.getElementById('bg-wave-text').innerText = bgWave;
+      document.getElementById('bg-score-text').innerText = bgScore;
+      document.getElementById('bg-hp-bar').style.width = `${Math.max(0, bgHp)}%`;
+    }
+
+    function bioGuardLoop(timestamp) {
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+      // Background Organ Grid Pattern
+      bgCtx.strokeStyle = 'rgba(30, 41, 59, 0.4)';
+      bgCtx.lineWidth = 1;
+      for (let x = 0; x < bgCanvas.width; x += 40) {
+        bgCtx.beginPath(); bgCtx.moveTo(x, 0); bgCtx.lineTo(x, bgCanvas.height); bgCtx.stroke();
+      }
+      for (let y = 0; y < bgCanvas.height; y += 40) {
+        bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(bgCanvas.width, y); bgCtx.stroke();
+      }
+
+      // Draw Central Organ Core Target Line at Bottom
+      bgCtx.fillStyle = 'rgba(244, 63, 94, 0.15)';
+      bgCtx.fillRect(0, bgCanvas.height - 35, bgCanvas.width, 35);
+      bgCtx.strokeStyle = 'rgba(244, 63, 94, 0.5)';
+      bgCtx.lineWidth = 2;
+      bgCtx.strokeRect(0, bgCanvas.height - 35, bgCanvas.width, 35);
+
+      bgCtx.fillStyle = '#f43f5e';
+      bgCtx.font = '12px Inter, sans-serif';
+      bgCtx.fillText('NÚCLEO VITAL DO ÓRGÃO', 15, bgCanvas.height - 12);
+
+      // Update & Draw Towers
+      bgTowers.forEach(t => {
+        bgCtx.beginPath();
+        bgCtx.arc(t.x, t.y, t.type === 'macrophage' ? 16 : 13, 0, Math.PI * 2);
+        bgCtx.fillStyle = t.type === 'macrophage' ? '#10b981' : (t.type === 'tcell' ? '#06b6d4' : '#8b5cf6');
+        bgCtx.fill();
+        bgCtx.strokeStyle = '#ffffff';
+        bgCtx.lineWidth = 2;
+        bgCtx.stroke();
+
+        // Tower Shooting Logic
+        if (bgRunning && timestamp - t.lastShoot > t.cooldown) {
+          // Find target
+          let target = null;
+          let minDist = t.range;
+          bgEnemies.forEach(e => {
+            let dist = Math.hypot(e.x - t.x, e.y - t.y);
+            if (dist < minDist) {
+              minDist = dist;
+              target = e;
+            }
+          });
+
+          if (target) {
+            t.lastShoot = timestamp;
+            if (t.type === 'tcell') audio.playLaser();
+            bgProjectiles.push({
+              x: t.x, y: t.y,
+              targetX: target.x, targetY: target.y,
+              targetEnemy: target,
+              type: t.type,
+              speed: 7
+            });
+          }
+        }
+      });
+
+      // Update & Draw Projectiles
+      for (let i = bgProjectiles.length - 1; i >= 0; i--) {
+        let p = bgProjectiles[i];
+        let angle = Math.atan2(p.targetY - p.y, p.targetX - p.x);
+        p.x += Math.cos(angle) * p.speed;
+        p.y += Math.sin(angle) * p.speed;
+
+        bgCtx.beginPath();
+        bgCtx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        bgCtx.fillStyle = p.type === 'tcell' ? '#22d3ee' : '#a7f3d0';
+        bgCtx.fill();
+
+        if (Math.hypot(p.targetX - p.x, p.targetY - p.y) < 8) {
+          // Hit Target
+          if (p.targetEnemy) {
+            let dmg = p.type === 'macrophage' ? 35 : (p.type === 'tcell' ? 15 : 25);
+            p.targetEnemy.hp -= dmg;
+            
+            // AoE effect for antibody
+            if (p.type === 'antibody') {
+              audio.playExplosion();
+              bgEnemies.forEach(e => {
+                if (Math.hypot(e.x - p.x, e.y - p.y) < 60) e.hp -= 20;
+              });
+            }
+          }
+          bgProjectiles.splice(i, 1);
+        }
+      }
+
+      // Update & Draw Enemies
+      for (let i = bgEnemies.length - 1; i >= 0; i--) {
+        let e = bgEnemies[i];
+        e.y += e.speed;
+
+        // Draw Enemy Body
+        bgCtx.beginPath();
+        bgCtx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
+        bgCtx.fillStyle = e.type === 'virus' ? '#ef4444' : (e.type === 'bacteria' ? '#10b981' : '#a855f7');
+        bgCtx.fill();
+        bgCtx.strokeStyle = '#0f172a';
+        bgCtx.lineWidth = 1.5;
+        bgCtx.stroke();
+
+        // Draw Mini HP bar
+        bgCtx.fillStyle = 'rgba(0,0,0,0.5)';
+        bgCtx.fillRect(e.x - 12, e.y - e.radius - 8, 24, 4);
+        bgCtx.fillStyle = '#10b981';
+        bgCtx.fillRect(e.x - 12, e.y - e.radius - 8, Math.max(0, (e.hp / e.maxHp) * 24), 4);
+
+        // Check Death
+        if (e.hp <= 0) {
+          bgScore += 10;
+          bgAtp += 8;
+          state.pathogensKilled++;
+          state.globalScore += 10;
+          saveState();
+
+          // Spawn particles
+          for (let p = 0; p < 8; p++) {
+            bgParticles.push({
+              x: e.x, y: e.y,
+              vx: (Math.random() - 0.5) * 4,
+              vy: (Math.random() - 0.5) * 4,
+              life: 1.0,
+              color: e.type === 'virus' ? '#ef4444' : '#10b981'
+            });
+          }
+
+          bgEnemies.splice(i, 1);
+          bioGuardUpdateUI();
+          continue;
+        }
+
+        // Check Organ Breach
+        if (e.y >= bgCanvas.height - 35) {
+          bgHp -= 10;
+          audio.playExplosion();
+          bgEnemies.splice(i, 1);
+          bioGuardUpdateUI();
+
+          if (bgHp <= 0) {
+            bgRunning = false;
+            showModal('Infecção Generalizada!', 'O órgão vital sofreu colapso.', `Pontuação obtida: <b>${bgScore} pts</b>.<br>Reinicie o sistema para proteger novamente.`, 'fa-skull-crossbones', 'text-rose-400');
+            bioGuardReset();
+            break;
+          }
+        }
+      }
+
+      // Check Wave Clear
+      if (bgRunning && bgEnemies.length === 0) {
+        bgRunning = false;
+        bgWave++;
+        bgAtp += 25;
+        audio.playSuccess();
+        document.getElementById('bg-start-btn').classList.remove('opacity-50', 'pointer-events-none');
+        showToast(`Onda ${bgWave - 1} Vencida! +25 ATP de bônus.`);
+        bioGuardUpdateUI();
+      }
+
+      // Draw Particles
+      for (let i = bgParticles.length - 1; i >= 0; i--) {
+        let p = bgParticles[i];
+        p.x += p.vx; p.y += p.vy; p.life -= 0.04;
+        if (p.life <= 0) {
+          bgParticles.splice(i, 1);
+          continue;
+        }
+        bgCtx.fillStyle = p.color;
+        bgCtx.globalAlpha = p.life;
+        bgCtx.fillRect(p.x, p.y, 3, 3);
+        bgCtx.globalAlpha = 1.0;
+      }
+
+      requestAnimationFrame(bioGuardLoop);
+    }
+
+    /* ===================================================================
+       4. GAME 2: VITALIS PRO (CLINICAL TRIAGE SIMULATOR ENGINE)
+       =================================================================== */
+    let vtEcgCanvas, vtEcgCtx;
+    let vtEcgX = 0, vtCurrentPatient = null;
+    let vtScore = 0, vtTotal = 0, vtTimer = 15, vtTimerInterval = null;
+
+    const vtClinicalCases = [
+      {
+        name: "Carlos Eduardo Silva", age: 58, gender: "Masc", avatar: "fa-user-tie",
+        hr: 115, bp: "165/100", spo2: 91, temp: 36.8,
+        complaint: "Dor opressiva retroesternal irradiada para mandíbula e braço esquerdo há 40min, acompanhada de sudorese fria e dispneia moderada.",
+        correctPriority: "red",
+        reason: "Quadro clássico de Síndrome Coronariana Aguda (SCA) com sinais de instabilidade. Requer atendimento imediato (Vermelho)."
+      },
+      {
+        name: "Juliana Mendes Costa", age: 24, gender: "Fem", avatar: "fa-user-nurse",
+        hr: 78, bp: "120/80", spo2: 98, temp: 37.8,
+        complaint: "Odinflagia e coriza transparente há 3 dias. Sem dispneia, aceitando dieta oral normalmente.",
+        correctPriority: "green",
+        reason: "Sintomas respiratórios superiores leves sem sinais de alarme ou alteração hemodinâmica. Triagem Verde (Pouco Urgente)."
+      },
+      {
+        name: "Roberto Rocha Santos", age: 42, gender: "Masc", avatar: "fa-user-large",
+        hr: 98, bp: "135/85", spo2: 96, temp: 38.9,
+        complaint: "Dor intensa em fossa ilíaca direita iniciada há 8 horas, acompanhada de náuseas, inapetência e febre aferida.",
+        correctPriority: "orange",
+        reason: "Suspeita de Apendicite Aguda em evolução. Apresenta dor abdominal aguda intensa e febre (Laranja - Muito Urgente)."
+      },
+      {
+        name: "Mariana Alcantara", age: 19, gender: "Fem", avatar: "fa-user-graduate",
+        hr: 140, bp: "85/50", spo2: 89, temp: 37.1,
+        complaint: "Edema labial, erupção cutânea urticariforme generalizada e estridor laríngeo pós-ingestão de camarão.",
+        correctPriority: "red",
+        reason: "Anafilaxia grave com comprometimento de vias aéreas superiores e choque anafilático iminente. Emergência absoluta (Vermelho)."
+      },
+      {
+        name: "Lucas Ferreira", age: 31, gender: "Masc", avatar: "fa-user",
+        hr: 82, bp: "128/82", spo2: 97, temp: 36.5,
+        complaint: "Deformidade visível no punho esquerdo após queda de própria altura ao praticar skate. Dor moderada local, pulsos distais presentes.",
+        correctPriority: "yellow",
+        reason: "Suspeita de Fratura Distal de Rádio sem dor intolerável ou déficit neurovascular imediato (Amarelo - Urgente)."
+      }
+    ];
+
+    function vitalisInit() {
+      vtEcgCanvas = document.getElementById('vt-ecg-canvas');
+      vtEcgCtx = vtEcgCanvas.getContext('2d');
+      vitalisNextPatient();
+      requestAnimationFrame(vitalisEcgLoop);
+    }
+
+    function vitalisEcgLoop() {
+      // Draw ECG scanning wave
+      vtEcgCtx.fillStyle = 'rgba(2, 6, 23, 0.15)';
+      vtEcgCtx.fillRect(vtEcgX, 0, 8, vtEcgCanvas.height);
+
+      vtEcgCtx.strokeStyle = '#10b981';
+      vtEcgCtx.lineWidth = 2;
+      vtEcgCtx.beginPath();
+
+      const midY = vtEcgCanvas.height / 2;
+      let y = midY;
+
+      // Simulate P-Q-R-S-T wave pulse periodically
+      const cycle = vtEcgX % 80;
+      if (cycle === 30) y -= 6; // P wave
+      else if (cycle === 40) y += 8; // Q wave
+      else if (cycle === 45) { y -= 45; audio.playEcgBeep(); } // R wave spike
+      else if (cycle === 50) y += 15; // S wave
+      else if (cycle === 65) y -= 10; // T wave
+
+      vtEcgCtx.moveTo(vtEcgX, midY);
+      vtEcgCtx.lineTo(vtEcgX + 1, y);
+      vtEcgCtx.stroke();
+
+      vtEcgX = (vtEcgX + 1) % vtEcgCanvas.width;
+      requestAnimationFrame(vitalisEcgLoop);
+    }
+
+    function vitalisNextPatient() {
+      clearInterval(vtTimerInterval);
+      vtCurrentPatient = vtClinicalCases[Math.floor(Math.random() * vtClinicalCases.length)];
+
+      document.getElementById('vt-patient-name').innerText = vtCurrentPatient.name;
+      document.getElementById('vt-patient-meta').innerText = `${vtCurrentPatient.age} anos | Gen: ${vtCurrentPatient.gender}`;
+      document.getElementById('vt-patient-id').innerText = `ID #${Math.floor(Math.random()*8999 + 1000)}`;
+      document.getElementById('vt-complaint-text').innerText = `"${vtCurrentPatient.complaint}"`;
+      
+      document.getElementById('vt-vital-hr').innerText = `${vtCurrentPatient.hr} BPM`;
+      document.getElementById('vt-vital-bp').innerText = `${vtCurrentPatient.bp} mmHg`;
+      document.getElementById('vt-vital-spo2').innerText = `${vtCurrentPatient.spo2}%`;
+      document.getElementById('vt-vital-temp').innerText = `${vtCurrentPatient.temp} °C`;
+      document.getElementById('vt-ecg-rate-text').innerText = `${vtCurrentPatient.hr} BPM`;
+
+      // Reset timer
+      vtTimer = 15;
+      document.getElementById('vt-timer-text').innerText = `${vtTimer}s`;
+      document.getElementById('vt-timer-bar').style.width = '100%';
+
+      vtTimerInterval = setInterval(() => {
+        vtTimer--;
+        document.getElementById('vt-timer-text').innerText = `${vtTimer}s`;
+        document.getElementById('vt-timer-bar').style.width = `${(vtTimer / 15) * 100}%`;
+        
+        if (vtTimer <= 0) {
+          clearInterval(vtTimerInterval);
+          vitalisSubmitTriage('timeout');
+        }
+      }, 1000);
+    }
+
+    function vitalisSubmitTriage(choice) {
+      audio.playClick();
+      clearInterval(vtTimerInterval);
+      vtTotal++;
+      state.triageTotal++;
+
+      const isCorrect = choice === vtCurrentPatient.correctPriority;
+      if (isCorrect) {
+        vtScore += 15;
+        state.triageCorrect++;
+        state.globalScore += 15;
+        audio.playSuccess();
+      }
+      saveState();
+
+      document.getElementById('vt-count').innerText = `${vtTotal}/10`;
+      document.getElementById('vt-score').innerText = vtScore;
+      document.getElementById('vt-acc').innerText = `${Math.round((state.triageCorrect / state.triageTotal) * 100)}%`;
+
+      const title = isCorrect ? 'Triagem Correta!' : 'Triagem Incorreta';
+      const icon = isCorrect ? 'fa-circle-check' : 'fa-triangle-exclamation';
+      const color = isCorrect ? 'text-emerald-400' : 'text-rose-400';
+
+      showModal(title, `Caso: ${vtCurrentPatient.name}`, `
+        <b>Justificativa Clínica:</b><br>${vtCurrentPatient.reason}<br><br>
+        <span class="text-xs text-slate-400">Classificação Selecionada: <b class="uppercase">${choice}</b></span>
+      `, icon, color);
+
+      vitalisNextPatient();
+    }
+
+    /* ===================================================================
+       5. GAME 3: REHABQUEST PRO (MOTOR REHABILITATION ENGINE)
+       =================================================================== */
+    let rhCanvas, rhCtx, rhGraphCanvas, rhGraphCtx;
+    let rhMode = 'lissajous';
+    let rhRunning = false, rhTimer = 30, rhInterval = null;
+    let rhMouseX = 380, rhMouseY = 220;
+    let rhTargetX = 380, rhTargetY = 220;
+    let rhAngle = 0, rhSpeed = 0.02;
+    let rhTicks = 0, rhInsideTicks = 0;
+    let rhHistory = [];
+
+    function rehabInit() {
+      rhCanvas = document.getElementById('rehab-canvas');
+      rhCtx = rhCanvas.getContext('2d');
+      rhGraphCanvas = document.getElementById('rehab-graph-canvas');
+      rhGraphCtx = rhGraphCanvas.getContext('2d');
+
+      rhCanvas.addEventListener('mousemove', (e) => {
+        const rect = rhCanvas.getBoundingClientRect();
+        rhMouseX = (e.clientX - rect.left) * (rhCanvas.width / rect.width);
+        rhMouseY = (e.clientY - rect.top) * (rhCanvas.height / rect.height);
+      });
+
+      requestAnimationFrame(rehabLoop);
+    }
+
+    function rehabSetMode(mode) {
+      audio.playClick();
+      rhMode = mode;
+      document.querySelectorAll('[id^="rh-mode-"]').forEach(btn => btn.className = 'w-full p-3 rounded-xl bg-slate-900 border border-slate-800 text-left hover:bg-slate-800 transition-all');
+      document.getElementById(`rh-mode-${mode}`).className = 'w-full p-3 rounded-xl bg-slate-900 border border-cyan-500 text-left hover:bg-slate-800 transition-all';
+    }
+
+    function rehabUpdateSpeed(val) {
+      rhSpeed = val == 1 ? 0.01 : (val == 2 ? 0.02 : 0.035);
+      document.getElementById('rh-speed-val').innerText = val == 1 ? 'Lento' : (val == 2 ? 'Normal' : 'Rápido');
+    }
+
+    function rehabStartSession() {
+      audio.playClick();
+      rhRunning = true;
+      rhTimer = 30;
+      rhTicks = 0; rhInsideTicks = 0; rhHistory = [];
+      document.getElementById('rh-start-btn').classList.add('opacity-50', 'pointer-events-none');
+
+      clearInterval(rhInterval);
+      rhInterval = setInterval(() => {
+        rhTimer--;
+        document.getElementById('rh-timer-text').innerText = `${rhTimer}s`;
+        if (rhTimer <= 0) {
+          clearInterval(rhInterval);
+          rehabEndSession();
+        }
+      }, 1000);
+    }
+
+    function rehabEndSession() {
+      rhRunning = false;
+      document.getElementById('rh-start-btn').classList.remove('opacity-50', 'pointer-events-none');
+      audio.playSuccess();
+
+      const precision = rhTicks > 0 ? Math.round((rhInsideTicks / rhTicks) * 100) : 0;
+      state.rehabTotalSessions++;
+      state.rehabPrecisionAvg = Math.round(((state.rehabPrecisionAvg * (state.rehabTotalSessions - 1)) + precision) / state.rehabTotalSessions);
+      state.globalScore += Math.round(precision / 2);
+      saveState();
+
+      showModal('Sessão Fisioterapêutica Concluída', 'Relatório Quantitativo de Motricidade', `
+        Precisão de Rastreio Motriz: <b>${precision}%</b><br>
+        Índice de Estabilidade Neuromuscular: <b>Excelente</b><br><br>
+        <span class="text-xs text-slate-400">Pontuação de Saúde acumulada: +${Math.round(precision / 2)} pts</span>
+      `, 'fa-circle-check', 'text-cyan-400');
+    }
+
+    function rehabLoop() {
+      rhCtx.clearRect(0, 0, rhCanvas.width, rhCanvas.height);
+
+      // Grid Pattern
+      rhCtx.strokeStyle = 'rgba(30, 41, 59, 0.4)';
+      rhCtx.lineWidth = 1;
+      for (let x = 0; x < rhCanvas.width; x += 40) {
+        rhCtx.beginPath(); rhCtx.moveTo(x, 0); rhCtx.lineTo(x, rhCanvas.height); rhCtx.stroke();
+      }
+      for (let y = 0; y < rhCanvas.height; y += 40) {
+        rhCtx.beginPath(); rhCtx.moveTo(0, y); rhCtx.lineTo(rhCanvas.width, y); rhCtx.stroke();
+      }
+
+      if (rhRunning) {
+        rhTicks++;
+        rhAngle += rhSpeed;
+
+        if (rhMode === 'lissajous') {
+          // Lissajous curve
+          rhTargetX = 380 + Math.sin(rhAngle) * 220;
+          rhTargetY = 220 + Math.sin(rhAngle * 2) * 120;
+        } else if (rhMode === 'pinch') {
+          // Small vibrating center
+          rhTargetX = 380 + Math.sin(rhAngle * 3) * 20;
+          rhTargetY = 220 + Math.cos(rhAngle * 3) * 20;
+        }
+
+        const dist = Math.hypot(rhMouseX - rhTargetX, rhMouseY - rhTargetY);
+        const radius = rhMode === 'pinch' ? 30 : 40;
+        const inside = dist < radius;
+
+        if (inside) rhInsideTicks++;
+
+        const currentAcc = Math.round((rhInsideTicks / rhTicks) * 100);
+        document.getElementById('rh-precision-text').innerText = `${currentAcc}%`;
+        document.getElementById('rh-tremor-text').innerText = dist < 15 ? '0.2 (Estável)' : `${(dist/10).toFixed(1)} (Oscilação)`;
+
+        // Draw Target Circle
+        rhCtx.beginPath();
+        rhCtx.arc(rhTargetX, rhTargetY, radius, 0, Math.PI * 2);
+        rhCtx.fillStyle = inside ? 'rgba(16, 185, 129, 0.25)' : 'rgba(244, 63, 94, 0.2)';
+        rhCtx.fill();
+        rhCtx.strokeStyle = inside ? '#10b981' : '#f43f5e';
+        rhCtx.lineWidth = 3;
+        rhCtx.stroke();
+
+        // Push graph value
+        rhHistory.push(inside ? 1 : 0);
+        if (rhHistory.length > 100) rhHistory.shift();
+      }
+
+      // Draw Cursor
+      rhCtx.beginPath();
+      rhCtx.arc(rhMouseX, rhMouseY, 8, 0, Math.PI * 2);
+      rhCtx.fillStyle = '#06b6d4';
+      rhCtx.fill();
+      rhCtx.strokeStyle = '#ffffff';
+      rhCtx.lineWidth = 2;
+      rhCtx.stroke();
+
+      // Render Graph Canvas
+      rhGraphCtx.clearRect(0, 0, rhGraphCanvas.width, rhGraphCanvas.height);
+      rhGraphCtx.strokeStyle = '#06b6d4';
+      rhGraphCtx.lineWidth = 2;
+      rhGraphCtx.beginPath();
+      rhHistory.forEach((val, idx) => {
+        let x = (idx / 100) * rhGraphCanvas.width;
+        let y = val === 1 ? 5 : 25;
+        if (idx === 0) rhGraphCtx.moveTo(x, y);
+        else rhGraphCtx.lineTo(x, y);
+      });
+      rhGraphCtx.stroke();
+
+      requestAnimationFrame(rehabLoop);
+    }
+
+    /* ===================================================================
+       6. GAME 4: MENTEVIVA PRO (ZEN & CBT ENGINE)
+       =================================================================== */
+    let mvCanvas, mvCtx;
+    let mvBreathingRunning = false;
+    let mvPhase = 0; // 0: inhale, 1: hold, 2: exhale
+    let mvScale = 1.0;
+
+    function mentevivaInit() {
+      mvCanvas = document.getElementById('breath-canvas');
+      mvCtx = mvCanvas.getContext('2d');
+      requestAnimationFrame(mentevivaLoop);
+      cbtInit();
+      habitsInit();
+    }
+
+    function mentevivaSubTab(tab) {
+      audio.playClick();
+      document.getElementById('mv-pane-breath').classList.add('hidden');
+      document.getElementById('mv-pane-cbt').classList.add('hidden');
+      document.getElementById('mv-pane-habits').classList.add('hidden');
+
+      document.getElementById('mv-sub-breath').className = 'px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition-all';
+      document.getElementById('mv-sub-cbt').className = 'px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition-all';
+      document.getElementById('mv-sub-habits').className = 'px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition-all';
+
+      document.getElementById(`mv-pane-${tab}`).classList.remove('hidden');
+      document.getElementById(`mv-sub-${tab}`).className = 'px-3 py-1.5 rounded-lg font-bold bg-violet-600 text-white transition-all';
+    }
+
+    function mvToggleAmbientSound(enable) {
+      if (enable) audio.startBinauralAlpha();
+      else audio.stopBinauralAlpha();
+    }
+
+    function mvToggleBreathingSession() {
+      audio.playClick();
+      mvBreathingRunning = !mvBreathingRunning;
+      const btn = document.getElementById('mv-breath-btn');
+      if (mvBreathingRunning) {
+        btn.innerHTML = '<i class="fa-solid fa-pause mr-1"></i>Pausar Ciclo';
+        state.zenSessions++;
+        state.globalScore += 20;
+        saveState();
+        mvRunBreathingCycle();
+      } else {
+        btn.innerHTML = '<i class="fa-solid fa-play mr-1"></i>Iniciar Ciclo Zen';
+      }
+    }
+
+    function mvRunBreathingCycle() {
+      if (!mvBreathingRunning) return;
+      
+      // Phase 1: Inhale 4s
+      mvPhase = 0;
+      document.getElementById('breath-phase-text').innerText = "Inspire Suavemente (4s)";
+      
+      setTimeout(() => {
+        if (!mvBreathingRunning) return;
+        // Phase 2: Hold 7s
+        mvPhase = 1;
+        document.getElementById('breath-phase-text').innerText = "Mantenha o Ar (7s)";
+        
+        setTimeout(() => {
+          if (!mvBreathingRunning) return;
+          // Phase 3: Exhale 8s
+          mvPhase = 2;
+          document.getElementById('breath-phase-text').innerText = "Expire Lentamente pela Boca (8s)";
+          
+          setTimeout(() => {
+            if (mvBreathingRunning) mvRunBreathingCycle();
+          }, 8000);
+        }, 7000);
+      }, 4000);
+    }
+
+    function mentevivaLoop() {
+      mvCtx.clearRect(0, 0, mvCanvas.width, mvCanvas.height);
+
+      const centerX = mvCanvas.width / 2;
+      const centerY = mvCanvas.height / 2;
+
+      if (mvBreathingRunning) {
+        if (mvPhase === 0) mvScale += 0.005; // Expanding
+        else if (mvPhase === 2) mvScale -= 0.003; // Shrinking
+        mvScale = Math.max(1.0, Math.min(1.8, mvScale));
+      }
+
+      // Outer Glowing Aura
+      const grad = mvCtx.createRadialGradient(centerX, centerY, 20 * mvScale, centerX, centerY, 100 * mvScale);
+      grad.addColorStop(0, 'rgba(139, 92, 246, 0.6)');
+      grad.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
+
+      mvCtx.beginPath();
+      mvCtx.arc(centerX, centerY, 100 * mvScale, 0, Math.PI * 2);
+      mvCtx.fillStyle = grad;
+      mvCtx.fill();
+
+      // Main Lotus / Zen Circle
+      mvCtx.beginPath();
+      mvCtx.arc(centerX, centerY, 55 * mvScale, 0, Math.PI * 2);
+      mvCtx.fillStyle = '#8b5cf6';
+      mvCtx.fill();
+      mvCtx.strokeStyle = '#c4b5fd';
+      mvCtx.lineWidth = 3;
+      mvCtx.stroke();
+
+      requestAnimationFrame(mentevivaLoop);
+    }
+
+    /* CBT Game Engine */
+    const cbtScenarios = [
+      {
+        thought: "Errei uma resposta de triagem. Definitivamente não sirvo para a área da saúde.",
+        options: [
+          { text: "Catastrofização & Tudo-ou-Nada: Um erro pontual é oportunidade de aprendizado, não define minha competência.", correct: true },
+          { text: "Raciocínio Emocional: Se me sinto mal, significa que sou incapaz.", correct: false }
+        ]
+      },
+      {
+        thought: "Sinto ansiedade antes do plantão. Com certeza algo terrível vai acontecer.",
+        options: [
+          { text: "Adivinhação do Futuro: A ansiedade é apenas uma reação fisiológica, não uma previsão do futuro.", correct: true },
+          { text: "Personalização: Eu sou o responsável por todos os problemas do hospital.", correct: false }
+        ]
+      }
+    ];
+
+    let cbtIndex = 0, cbtScore = 0;
+
+    function cbtInit() {
+      cbtRenderCard();
+    }
+
+    function cbtRenderCard() {
+      const current = cbtScenarios[cbtIndex];
+      document.getElementById('cbt-thought-text').innerText = `"${current.thought}"`;
+      document.getElementById('cbt-card-counter').innerText = `Caso ${cbtIndex + 1} de ${cbtScenarios.length}`;
+
+      const container = document.getElementById('cbt-options-container');
+      container.innerHTML = current.options.map((opt, idx) => `
+        <button onclick="cbtSelectOption(${opt.correct})" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-violet-500 text-left transition-all text-xs text-slate-200 leading-relaxed font-medium">
+          ${opt.text}
+        </button>
+      `).join('');
+    }
+
+    function cbtSelectOption(isCorrect) {
+      if (isCorrect) {
+        audio.playSuccess();
+        cbtScore += 25;
+        state.globalScore += 25;
+        saveState();
+        showToast('Enquadramento Racional Correto! +25 pts');
+      } else {
+        showToast('Opção incorreta. Tente reestruturar com realismo.', 'info');
+      }
+
+      document.getElementById('cbt-score-text').innerText = `${cbtScore} pts`;
+      cbtIndex = (cbtIndex + 1) % cbtScenarios.length;
+      cbtRenderCard();
+    }
+
+    /* Habits Tracker */
+    const habitsList = [
+      { id: 'h1', label: 'Hidratação (Ingestão de 2L de água)' },
+      { id: 'h2', label: 'Pausa Ativa de Alongamento (5 min)' },
+      { id: 'h3', label: 'Exercício de Respiração MenteViva' },
+      { id: 'h4', label: 'Alimentação Nutritiva Equilibrada' },
+      { id: 'h5', label: '7-8h de Sono Reparador' }
+    ];
+
+    function habitsInit() {
+      const container = document.getElementById('habits-container');
+      container.innerHTML = habitsList.map(h => `
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-200">${h.label}</span>
+          <input type="checkbox" onchange="habitToggle('${h.id}', this.checked)" ${state.habitsDone[h.id] ? 'checked' : ''} class="accent-emerald-500 w-5 h-5 cursor-pointer">
+        </div>
+      `).join('');
+
+      updateHabitsProgress();
+    }
+
+    function habitToggle(id, checked) {
+      audio.playClick();
+      state.habitsDone[id] = checked;
+      if (checked) state.globalScore += 10;
+      saveState();
+      updateHabitsProgress();
+    }
+
+    function updateHabitsProgress() {
+      const doneCount = Object.values(state.habitsDone).filter(Boolean).length;
+      document.getElementById('habit-progress-text').innerText = `${doneCount}/${habitsList.length} Concluídos`;
+    }
+
+    /* ===================================================================
+       7. GLOBAL INITIALIZATION ON WINDOW LOAD
+       =================================================================== */
+    window.onload = function() {
+      loadState();
+      bioGuardInit();
+      vitalisInit();
+      rehabInit();
+      mentevivaInit();
+    };
+  </script>
+</body>
+</html>
